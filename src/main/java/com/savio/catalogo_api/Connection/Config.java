@@ -1,19 +1,19 @@
-package com.savio.catalogo_api.app;
+package com.savio.catalogo_api.Connection;
 
 public final class Config {
 
     private Config() {}
 
     public static String url() {
-        return "jdbc:postgresql://localhost:5432/" + exigir("catalogo");
+        return "jdbc:postgresql://localhost:5432/" + exigir("POSTGRES_DB");
     }
 
     public static String usuario() {
-        return exigir("app");
+        return exigir("POSTGRES_USER");
     }
 
     public static String senha() {
-        return exigir("senha");
+        return exigir("POSTGRES_PASSWORD");
     }
 
     private static String exigir(String nome) {
