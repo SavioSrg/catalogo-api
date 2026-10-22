@@ -1,4 +1,4 @@
-package com.savio.catalogo_api.Connection;
+package com.savio.catalogo_api.connection;
 
 public final class Config {
 
