@@ -2,10 +2,7 @@ package com.savio.catalogo_api.dao;
 
 import com.savio.catalogo_api.model.Produto;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -96,6 +93,70 @@ public class ProdutoDao {
         }
     }
 
+    public void registrarSaida(Connection conn, long produtoId, int quantidade, String observacao) throws SQLException {
+        if (quantidade <= 0) throw new IllegalArgumentException("Quantidade inválida");
+
+        conn.setAutoCommit(false);
+
+        try {
+            // 1. trava a linha do produto: saídas simultâneas esperam a vez
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "select id from produto where id = ? and ativo = true for update")) {
+                ps.setLong(1, produtoId);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    // 1.1. Se o produto estiver inexistente ou inativo e lança uma exceção
+                    if (!rs.next()) {
+                        throw new IllegalArgumentException("Produto inexistente ou inativo");
+                    }
+                }
+            }
+
+            // 2. calcula o saldo atual
+            int saldo;
+
+            String sqlSaldo = """
+                    select
+                        coalesce(
+                            sum(
+                                case tipo when 'ENTRADA' then quantidade else -quantidade end
+                                )
+                            , 0)
+                            from movimentacao_estoque where produto_id = ?
+                    """;
+            try (PreparedStatement ps = conn.prepareStatement(sqlSaldo)) {
+                ps.setLong(1, produtoId);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    rs.next();
+                    saldo = rs.getInt(1);
+
+                    // 2.1. Verificar a quantidade do estoque
+                    if (saldo < quantidade) {
+                        throw new IllegalArgumentException("Estoque insuficiente: saldo " + saldo);
+                    }
+                }
+            }
+            // 3. grava a saída
+
+            String sqlSaida = """
+                        insert into movimentacao_estoque (produto_id, tipo, quantidade, observacao)
+                        values (?, 'SAIDA', ?, ?)
+                        """;
+            try (PreparedStatement ps = conn.prepareStatement(sqlSaida)) {
+                ps.setLong(1, produtoId);
+                ps.setInt(2, quantidade);
+                ps.setString(3, observacao);
+                ps.executeUpdate();
+            }
+            conn.commit();
+        } catch (SQLException | RuntimeException e) {
+            conn.rollback();
+            throw e;
+        } finally {
+            conn.setAutoCommit(true);
+        }
+    }
 
 
 }
