@@ -41,6 +41,22 @@ public class ProdutoDao {
         }
     }
 
+    public List<Produto> buscarPorNome(Connection conn, String nome) throws SQLException {
+        String sql = "select " + COLUNAS + " from produto where nome ilike(?)";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, String.format("%s%%", nome));
+
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Produto> lista = new ArrayList<>();
+                while (rs.next()) {
+                    lista.add(Produto.mapear(rs));
+                }
+                return lista;
+            }
+        }
+    }
+
     public List<Produto> listarAtivos(Connection conn, int pagina, int tamanho) throws SQLException {
         if (pagina < 0 || tamanho < 1 || tamanho > 100) {
             throw new IllegalArgumentException("pagina >= 0 e tamanho entre 1 e 100");
