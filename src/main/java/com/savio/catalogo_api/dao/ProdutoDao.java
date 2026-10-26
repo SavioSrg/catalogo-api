@@ -41,11 +41,12 @@ public class ProdutoDao {
         }
     }
 
+    // buscarPorNome encontra o que contenham a String buscada
     public List<Produto> buscarPorNome(Connection conn, String nome) throws SQLException {
-        String sql = "select " + COLUNAS + " from produto where nome ilike(?)";
+        String sql = "select " + COLUNAS + " from produto where nome ilike(?) order by nome, id";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, String.format("%s%%", nome));
+            ps.setString(1, String.format("%%%s%%", nome));
 
             try (ResultSet rs = ps.executeQuery()) {
                 List<Produto> lista = new ArrayList<>();

@@ -1,12 +1,11 @@
 package com.savio.catalogo_api.app;
 
-import com.savio.catalogo_api.connection.Config;
+import com.savio.catalogo_api.connection.ConnectionFactory;
 import com.savio.catalogo_api.dao.ProdutoDao;
 import com.savio.catalogo_api.model.Produto;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -15,8 +14,7 @@ public class Main {
 
         ProdutoDao dao = new ProdutoDao();
 
-        try (Connection conn = DriverManager.getConnection(
-                Config.url(), Config.usuario(), Config.senha())) {
+        try (Connection conn = ConnectionFactory.getConnection()) {
 
             // 1. Geração de um SKU dinâmico e único para esta execução
             String skuDinamico = "PER-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
