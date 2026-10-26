@@ -14,6 +14,13 @@ public class MainTeste {
         ProdutoDao dao = new ProdutoDao();
 
         try (Connection conn = ConnectionFactory.getConnection()) {
+
+            for (int i = 0; i < 20; i++) {
+                try (Connection c = ConnectionFactory.getConnection()) {
+                    dao.buscarPorNome(c, "hub");
+                }
+            }
+
             System.out.println("Produtos com 'hub'");
             // teste com a String "hub"
             List<Produto> listaProdutosEncontradosTeste1 = dao.buscarPorNome(conn, "hub");
