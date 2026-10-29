@@ -1,4 +1,4 @@
-package com.savio.catalogo_api.model;
+package com.savio.catalogo_api.jdbc.domain;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;

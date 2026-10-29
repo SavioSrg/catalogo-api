@@ -1,8 +1,11 @@
-package com.savio.catalogo_api.dao;
+package com.savio.catalogo_api.jdbc.dao;
 
-import com.savio.catalogo_api.model.Produto;
+import com.savio.catalogo_api.jdbc.domain.Produto;
+import com.savio.catalogo_api.model.SaidaMensal;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -157,9 +160,9 @@ public class ProdutoDao {
             // 3. grava a saída
 
             String sqlSaida = """
-                        insert into movimentacao_estoque (produto_id, tipo, quantidade, observacao)
-                        values (?, 'SAIDA', ?, ?)
-                        """;
+                    insert into movimentacao_estoque (produto_id, tipo, quantidade, observacao)
+                    values (?, 'SAIDA', ?, ?)
+                    """;
             try (PreparedStatement ps = conn.prepareStatement(sqlSaida)) {
                 ps.setLong(1, produtoId);
                 ps.setInt(2, quantidade);
@@ -175,5 +178,48 @@ public class ProdutoDao {
         }
     }
 
+    public List<Produto> buscarProdutoSemMovimentacao(Connection conn) throws SQLException {
+        String sql = """
+                   select id, nome, sku, descricao, preco, ativo, categoria_id, criado_em
+                   from produto p
+                   where not exists (
+                       select 1 from movimentacao_estoque me where me.produto_id = p.id
+                   )
+                """;
 
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            List<Produto> lista = new ArrayList<>();
+
+            while (rs.next()) {
+                lista.add(Produto.mapear(rs));
+            }
+            return lista;
+        }
+    }
+
+    public List<SaidaMensal> totalSaidaMes(Connection conn) throws SQLException {
+        String sql = """
+                select
+                	date_trunc('month', me.data_movimentacao ) as mes,
+                	SUM(me.quantidade) as total
+                from produto p
+                inner join movimentacao_estoque me on p.id = me.produto_id
+                	and me.tipo = 'SAIDA'
+                group by date_trunc('month', me.data_movimentacao)
+                ORDER BY mes;
+                """;
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            List<SaidaMensal> lista = new ArrayList<>();
+            while (rs.next()) {
+                lista.add(new SaidaMensal(
+                        LocalDate.from(rs.getObject("mes", LocalDateTime.class)),
+                        rs.getLong("total")));
+            }
+            return lista;
+        }
+    }
 }

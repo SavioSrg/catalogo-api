@@ -1,8 +1,8 @@
-package com.savio.catalogo_api.app;
+package com.savio.catalogo_api.jdbc.start;
 
-import com.savio.catalogo_api.connection.ConnectionFactory;
-import com.savio.catalogo_api.dao.ProdutoDao;
-import com.savio.catalogo_api.model.Produto;
+import com.savio.catalogo_api.jdbc.connection.ConnectionFactory;
+import com.savio.catalogo_api.jdbc.dao.ProdutoDao;
+import com.savio.catalogo_api.jdbc.domain.Produto;
 
 import java.math.BigDecimal;
 import java.sql.Connection;

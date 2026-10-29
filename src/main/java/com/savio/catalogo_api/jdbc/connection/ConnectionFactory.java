@@ -1,4 +1,4 @@
-package com.savio.catalogo_api.connection;
+package com.savio.catalogo_api.jdbc.connection;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

@@ -1,8 +1,8 @@
-package com.savio.catalogo_api.app;
+package com.savio.catalogo_api.jdbc.start;
 
-import com.savio.catalogo_api.connection.ConnectionFactory;
-import com.savio.catalogo_api.dao.ProdutoDao;
-import com.savio.catalogo_api.model.Produto;
+import com.savio.catalogo_api.jdbc.connection.ConnectionFactory;
+import com.savio.catalogo_api.jdbc.dao.ProdutoDao;
+import com.savio.catalogo_api.jdbc.domain.Produto;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -15,13 +15,21 @@ public class MainTeste {
 
         try (Connection conn = ConnectionFactory.getConnection()) {
 
-            for (int i = 0; i < 20; i++) {
-                try (Connection c = ConnectionFactory.getConnection()) {
-                    dao.buscarPorNome(c, "hub");
-                }
-            }
+//            for (int i = 0; i < 20; i++) {
+//                try (Connection c = ConnectionFactory.getConnection()) {
+//                    dao.buscarPorNome(c, "hub");
+//                }
+//            }
 
-            System.out.println("Produtos com 'hub'");
+            List<Produto> listaProdutosSemMovimentacao = dao.buscarProdutoSemMovimentacao(conn);
+            listaProdutosSemMovimentacao.stream()
+                            .map(produto -> produto.nome())
+                                    .forEach(System.out::println);
+
+            dao.totalSaidaMes(conn).forEach(s ->
+                    System.out.println(s.mes().getMonth() + "/" + s.mes().getYear() + ": " + s.total()));
+
+            System.out.println("\nProdutos com 'hub'");
             // teste com a String "hub"
             List<Produto> listaProdutosEncontradosTeste1 = dao.buscarPorNome(conn, "hub");
             listaProdutosEncontradosTeste1.stream()
