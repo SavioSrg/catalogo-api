@@ -1,5 +1,8 @@
 package com.savio.catalogo_api.dto;
 
+import com.savio.catalogo_api.entity.ProdutoEntity;
+import com.savio.catalogo_api.jdbc.domain.Produto;
+
 import java.math.BigDecimal;
 
 public record ProdutoRequest(
@@ -7,6 +10,19 @@ public record ProdutoRequest(
         String sku,
         String descricao,
         BigDecimal preco,
+        boolean ativo,
         long categoriaId
 ) {
+
+    public ProdutoEntity toEntity() {
+        ProdutoEntity produto = new ProdutoEntity();
+        produto.setNome(this.nome);
+        produto.setSku(this.sku);
+        produto.setDescricao(this.descricao);
+        produto.setPreco(this.preco);
+        produto.setAtivo(this.ativo);
+        produto.setCategoriaId(this.categoriaId);
+
+        return produto;
+    }
 }
