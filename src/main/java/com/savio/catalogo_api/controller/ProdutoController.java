@@ -1,7 +1,9 @@
 package com.savio.catalogo_api.controller;
 
+import com.savio.catalogo_api.dto.ProdutoResponse;
 import com.savio.catalogo_api.entity.ProdutoEntity;
 import com.savio.catalogo_api.repository.ProdutoRepository;
+import com.savio.catalogo_api.service.ProdutoService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,27 +14,24 @@ import java.util.List;
 @RequestMapping("/produtos")
 public class ProdutoController {
 
-    private final ProdutoRepository produtoRepository;
+    private final ProdutoService produtoService;
 
-    public ProdutoController(ProdutoRepository produtoRepository) {
-        this.produtoRepository = produtoRepository;
+    public ProdutoController(ProdutoService produtoService) {
+        this.produtoService = produtoService;
     }
 
     @GetMapping
-    public List<ProdutoEntity> listar(Pageable pageable) {
-        return produtoRepository.findAll(pageable).getContent();
+    public List<ProdutoResponse> listar(Pageable pageable) {
+        return produtoService.listar(pageable).getContent();
     }
 
     @GetMapping("/ativos")
-    public List<ProdutoEntity> listarAtivo(@RequestParam boolean ativos, Pageable pageable) {
-        return produtoRepository.findByAtivo(ativos, pageable).getContent();
+    public List<ProdutoResponse> listarAtivo(@RequestParam boolean ativos, Pageable pageable) {
+        return produtoService.listarPorAtivo(ativos, pageable).getContent();
     }
 
-    // Busca por ID retornando 200 (OK) ou 404 (Not Found)
     @GetMapping("/{id}")
-    public ResponseEntity<ProdutoEntity> buscarPorId(@PathVariable Long id) {
-        return produtoRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ProdutoResponse buscarPorId(@PathVariable long id) {
+        return produtoService.buscarPorId(id);
     }
 }
