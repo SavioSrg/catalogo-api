@@ -1,7 +1,6 @@
 package com.savio.catalogo_api.dto;
 
 import com.savio.catalogo_api.entity.ProdutoEntity;
-import com.savio.catalogo_api.jdbc.domain.Produto;
 
 import java.math.BigDecimal;
 
@@ -10,7 +9,6 @@ public record ProdutoRequest(
         String sku,
         String descricao,
         BigDecimal preco,
-        boolean ativo,
         long categoriaId
 ) {
 
@@ -20,7 +18,7 @@ public record ProdutoRequest(
         produto.setSku(this.sku);
         produto.setDescricao(this.descricao);
         produto.setPreco(this.preco);
-        produto.setAtivo(this.ativo);
+        produto.setAtivo(true);
         produto.setCategoriaId(this.categoriaId);
 
         return produto;
