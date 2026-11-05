@@ -2,10 +2,10 @@ package com.savio.catalogo_api.controller;
 
 import com.savio.catalogo_api.dto.ProdutoRequest;
 import com.savio.catalogo_api.dto.ProdutoResponse;
-import com.savio.catalogo_api.entity.ProdutoEntity;
-import com.savio.catalogo_api.repository.ProdutoRepository;
 import com.savio.catalogo_api.service.ProdutoService;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -24,13 +24,8 @@ public class ProdutoController {
     }
 
     @GetMapping
-    public List<ProdutoResponse> listar(Pageable pageable) {
-        return produtoService.listar(pageable).getContent();
-    }
-
-    @GetMapping("/ativos")
-    public List<ProdutoResponse> listarAtivo(@RequestParam boolean ativos, Pageable pageable) {
-        return produtoService.listarPorAtivo(ativos, pageable).getContent();
+    public PagedModel<ProdutoResponse> listar(@RequestParam(required = false) Boolean ativo, Pageable pageable) {
+        return new PagedModel<>(produtoService.listar(ativo, pageable));
     }
 
     @GetMapping("/{id}")
@@ -40,16 +35,22 @@ public class ProdutoController {
 
     @PostMapping
     public ResponseEntity<ProdutoResponse> criar(@RequestBody ProdutoRequest request) {
-        // 1. Chama o service para salvar e receber o response preenchido
-        ProdutoResponse produtoCriado = produtoService.criar(request);
-
-        // 2. Constrói a URL do novo recurso criado para colocar no header Location
+        ProdutoResponse criado = produtoService.criar(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(produtoCriado.id()) // Supondo que o record tenha o campo id()
+                .buildAndExpand(criado.id())
                 .toUri();
+        return ResponseEntity.created(location).body(criado);
+    }
 
-        // 3. Retorna o status 201 Created, com o header Location e o corpo com os dados
-        return ResponseEntity.created(location).body(produtoCriado);
+    @PutMapping("/{id}")
+    public ProdutoResponse atualizar(@PathVariable long id, @RequestBody ProdutoRequest request) {
+        return produtoService.atualizar(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void remover(@PathVariable long id) {
+        produtoService.remover(id);
     }
 }

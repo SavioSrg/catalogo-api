@@ -11,37 +11,50 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 public class ProdutoService {
+
     private final ProdutoRepository produtoRepository;
 
     public ProdutoService(ProdutoRepository produtoRepository) {
         this.produtoRepository = produtoRepository;
     }
 
-    @Transactional(readOnly = true)
-    public ProdutoResponse buscarPorId(long id) {
-        ProdutoEntity entity = produtoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+    public Page<ProdutoResponse> listar(Boolean ativo, Pageable pageable) {
+        Page<ProdutoEntity> pagina = (ativo == null)
+                ? produtoRepository.findAll(pageable)
+                : produtoRepository.findByAtivo(ativo, pageable);
+        return pagina.map(ProdutoResponse::from);
+    }
 
+    public ProdutoResponse buscarPorId(long id) {
+        return ProdutoResponse.from(buscarEntidade(id));
+    }
+
+    @Transactional
+    public ProdutoResponse criar(ProdutoRequest request) {
+        ProdutoEntity salvo = produtoRepository.save(request.toEntity());
+        return ProdutoResponse.from(salvo);
+    }
+
+    @Transactional
+    public ProdutoResponse atualizar(long id, ProdutoRequest request) {
+        ProdutoEntity entity = buscarEntidade(id);
+        entity.setNome(request.nome());
+        entity.setSku(request.sku());
+        entity.setDescricao(request.descricao());
+        entity.setPreco(request.preco());
+        entity.setCategoriaId(request.categoriaId());
         return ProdutoResponse.from(entity);
     }
 
-    public Page<ProdutoResponse> listar(Pageable pageable) {
-        return produtoRepository.findAll(pageable).map(ProdutoResponse::from);
+    @Transactional
+    public void remover(long id) {
+        buscarEntidade(id).setAtivo(false);
     }
 
-    public Page<ProdutoResponse> listarPorAtivo(boolean ativo, Pageable pageable) {
-        return produtoRepository.findByAtivo(ativo, pageable).map(ProdutoResponse::from);
-    }
-
-    public ProdutoResponse criar(ProdutoRequest request) {
-        // 1. Converte o request (DTO) para a entidade do banco
-        ProdutoEntity produtoEntity = request.toEntity();
-
-        // 2. Salva no banco de dados (o @PrePersist roda aqui, gerando o criado_em)
-        ProdutoEntity produtoSalvo = produtoRepository.save(produtoEntity);
-
-        // 3. Converte a entidade salva de volta para o response (DTO de saída) e a retorna
-        return ProdutoResponse.from(produtoSalvo);
+    private ProdutoEntity buscarEntidade(long id) {
+        return produtoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado: id " + id));
     }
 }
