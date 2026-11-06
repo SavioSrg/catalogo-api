@@ -3,6 +3,7 @@ package com.savio.catalogo_api.controller;
 import com.savio.catalogo_api.dto.ProdutoRequest;
 import com.savio.catalogo_api.dto.ProdutoResponse;
 import com.savio.catalogo_api.service.ProdutoService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/produtos")
@@ -34,7 +34,7 @@ public class ProdutoController {
     }
 
     @PostMapping
-    public ResponseEntity<ProdutoResponse> criar(@RequestBody ProdutoRequest request) {
+    public ResponseEntity<ProdutoResponse> criar(@Valid @RequestBody ProdutoRequest request) {
         ProdutoResponse criado = produtoService.criar(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -44,7 +44,7 @@ public class ProdutoController {
     }
 
     @PutMapping("/{id}")
-    public ProdutoResponse atualizar(@PathVariable long id, @RequestBody ProdutoRequest request) {
+    public ProdutoResponse atualizar(@PathVariable long id,@Valid @RequestBody ProdutoRequest request) {
         return produtoService.atualizar(id, request);
     }
 
@@ -53,6 +53,4 @@ public class ProdutoController {
     public void remover(@PathVariable long id) {
         produtoService.remover(id);
     }
-
-
 }

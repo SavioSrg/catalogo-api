@@ -1,15 +1,16 @@
 package com.savio.catalogo_api.dto;
 
 import com.savio.catalogo_api.entity.ProdutoEntity;
+import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 
 public record ProdutoRequest(
-        String nome,
-        String sku,
-        String descricao,
-        BigDecimal preco,
-        long categoriaId
+        @NotBlank @Size(max = 150) String nome,
+        @NotBlank @Size(max = 50) String sku,
+        @Size(max = 180) String descricao,
+        @NotNull @PositiveOrZero @Digits(integer = 8, fraction = 2) BigDecimal preco,
+        @Positive long categoriaId
 ) {
 
     public ProdutoEntity toEntity() {
