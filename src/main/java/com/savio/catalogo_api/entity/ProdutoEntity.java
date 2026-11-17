@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "produto")
@@ -33,26 +32,63 @@ public class ProdutoEntity {
     public ProdutoEntity() {
     }
 
-    public long getId() { return id; }
-    protected void setId(long id) { this.id = id; }
+    public long getId() {
+        return id;
+    }
 
-    public String getNome() { return nome; }
-    public void setNome(String nome) { this.nome = nome; }
+    protected void setId(long id) {
+        this.id = id;
+    }
 
-    public String getSku() { return sku; }
-    public void setSku(String sku) { this.sku = sku; }
+    public String getNome() {
+        return nome;
+    }
 
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
 
-    public BigDecimal getPreco() { return preco; }
-    public void setPreco(BigDecimal preco) { this.preco = preco; }
+    public String getSku() {
+        return sku;
+    }
 
-    public boolean isAtivo() { return ativo; }
-    public void setAtivo(boolean ativo) { this.ativo = ativo; }
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
 
-    public long getCategoriaId() { return categoriaId; }
-    public void setCategoriaId(long categoriaId) { this.categoriaId = categoriaId; }
+    public String getDescricao() {
+        return descricao;
+    }
 
-    public LocalDateTime getCriadoEm() { return criadoEm; }
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public BigDecimal getPreco() {
+        return preco;
+    }
+
+    public void setPreco(BigDecimal preco) {
+        this.preco = preco;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
+    }
+
+    public long getCategoriaId() {
+        return categoriaId;
+    }
+
+    public void setCategoriaId(long categoriaId) {
+        this.categoriaId = categoriaId;
+    }
+
+    public LocalDateTime getCriadoEm() {
+        return criadoEm;
+    }
 }
